@@ -45,7 +45,12 @@ export default function OAuth() {
       type="button"
       className="third-party-btn"
     >
-      Continue with Google
+       <img
+    src="https://www.svgrepo.com/show/475656/google-color.svg"
+    alt="Google"
+    className="w-5 h-5" // Adjust size as needed
+  />
+       Google
     </button>
   );
 }

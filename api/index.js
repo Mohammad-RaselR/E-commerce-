@@ -1,10 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from 'dotenv'
-import userRouter from "./routes/user.route.js"
+// import userRouter from "./routes/user.route.js"
 import authRouter from "./routes/auth.route.js"
 import cookieParser from "cookie-parser";
-import listingRouter from "./routes/listing.route.js"
+// import listingRouter from "./routes/listing.route.js"
 import vendorRouter from "./routes/vendor.routes.js"
 // import { getVendorDashboard } from "./controllers/vendor.controller.js";
 dotenv.config(); 
@@ -22,9 +22,9 @@ app.use(cookieParser());
 app.listen(3000, ()=>{
     console.log("Server is running on port 3000")
 });
-app.use('/api/user', userRouter); 
+// app.use('/api/user', userRouter); 
 app.use('/api/auth', authRouter); 
-app.use('/api/listing/', listingRouter)
+// app.use('/api/listing/', listingRouter)
 app.use('/api/vendor', vendorRouter);
 // app.get('/api/dashboard', getVendorDashboard)       
 app.use((error, req,res, next)=>{

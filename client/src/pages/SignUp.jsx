@@ -1,56 +1,81 @@
 import React, { useState } from 'react';
 import '../Components/AuthForm.css';
 import { GoogleAuthProvider } from 'firebase/auth/web-extension';
-import { getAuth, signInWithPopup } from 'firebase/auth';
-import { app } from '../firebase'; // Adjust the import based on your project structure
-import {  useNavigate} from 'react-router-dom'
-import OAuth from '../components/OAuth'; // Adjust the import based on your project structure
+import { getAuth, signInWithPopup, sendPasswordResetEmail, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { app } from '../firebase';
+import { useNavigate } from 'react-router-dom';
+import OAuth from '../components/OAuth';
+
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState('customer'); // Default to customer role
+  const [role, setRole] = useState('customer');
   const [shopName, setShopName] = useState('');
   const [shopDescription, setShopDescription] = useState('');
-  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
-  const navigate= useNavigate(); 
+  const [passwordError, setPasswordError] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  
+  const navigate = useNavigate(); 
+
   const handleRoleChange = (e) => {
     setRole(e.target.value);
+  };
+
+  // Password Validation Function
+  const validatePassword = (password) => {
+    const minLength = password.length >= 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!minLength) {
+      return "Password must be at least 8 characters.";
+    }
+    if (!hasUpperCase || !hasLowerCase) {
+      return "Password must contain both uppercase and lowercase letters.";
+    }
+    if (!hasNumber) {
+      return "Password must contain at least one number.";
+    }
+    if (!hasSpecialChar) {
+      return "Password must contain at least one special character.";
+    }
+
+    return ""; // No errors
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = {
-      username,
-      email,
-      password,
-      role,
-      shopName,
-      shopDescription
-    };
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setPasswordError(passwordError);
+      return;
+    }
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const auth = getAuth(app);
+      // Create a new user with email and password
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-      const data = await response.json();
-      if (response.ok) {
-        console.log('User created successfully:', data);
-        navigate('/sign-in'); 
-        
-      } else {
-        console.error('Signup failed:', data);
-        
-      }
+      // Send email verification
+      await sendEmailVerification(user);
+
+      setSuccessMessage('Registration successful! Please check your email to verify your account.');
+
+      // After registration and sending the verification email, you can redirect or wait for the user to verify
+      setTimeout(() => {
+        navigate('/sign-in'); // Redirect to sign-in page after success
+      }, 3000); // Wait for 3 seconds before redirecting
+
     } catch (error) {
-      console.error('Error during signup:', error);
+      setError(error.message);
     }
   };
 
@@ -86,6 +111,8 @@ export default function SignUp() {
     }
   };
 
+  
+
   return (
     <div className="auth-container">
       <h1>UdaoMart</h1>
@@ -93,16 +120,13 @@ export default function SignUp() {
       <p className="signup-instruction">Sign up with...</p>
       <div className="third-party-buttons">
         <OAuth />
-        
-          
-        
-      
-        <button className="third-party-btn">
+        <button className="third-party-btn" onClick={handleGoogleClick}>
           <img
-            src="https://img.icons8.com/color/24/000000/facebook-new.png"
-            alt="Facebook"
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            alt="Google"
+            className="w-5 h-5"
           />
-          Facebook
+          Google
         </button>
       </div>
 
@@ -141,9 +165,16 @@ export default function SignUp() {
             onClick={() => setShowPassword(!showPassword)}
           ></span>
         </div>
+        {passwordError && <p className="error-text">{passwordError}</p>}
 
         <label>Mobile Number</label>
-       
+        <input
+          type="tel"
+          value={mobileNumber}
+          onChange={(e) => setMobileNumber(e.target.value)}
+          placeholder="Enter your mobile number"
+          required
+        />
 
         <div className="radio-group">
           <label>
@@ -179,7 +210,8 @@ export default function SignUp() {
             />
 
             <label>Shop Description</label>
-            <textarea className='shop-description'
+            <textarea
+              className="shop-description"
               value={shopDescription}
               onChange={(e) => setShopDescription(e.target.value)}
               placeholder="Describe your shop"
@@ -195,6 +227,11 @@ export default function SignUp() {
       <p className="switch-link">
         <a href="/sign-in">Already a member? Sign in</a>
       </p>
+
+      
+
+      {error && <p className="error-text">{error}</p>}
+      {successMessage && <p className="success-text">{successMessage}</p>}
     </div>
   );
 }
