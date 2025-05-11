@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import OAuth from '../components/OAuth';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import { app } from '../firebase';
+// import { setVendor } from '../redux/vendor/vendorSlice';
+import { setVendor } from '../redux/vendor/vendorSlice';
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,6 +15,7 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -42,6 +47,7 @@ export default function SignIn() {
   
 
     try {
+      
       // Determine the API URL based on userType
       const apiUrl = userType === 'vendor' ? '/api/vendor/vendor-login' : '/api/auth/signin';
 
@@ -51,24 +57,36 @@ export default function SignIn() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
+      
 
       const data = await res.json();
+      console.log("data",data)
       if (data.success === false) {
         setError(data.message);
         setLoading(false);
         return;
       }
+      
+    //  console.log("fffffffffff ",data);
 
       setError(null);
       setLoading(false);
-      Swal.fire({
-        position: "top-end",
-        icon: "success",
-        title: "Login Succesfully",
-        showConfirmButton: false,
-        timer: 1500
-      });
-      navigate('/'); // Redirect after successful login
+      
+      if (userType === 'vendor') {
+        
+        // Store vendor data in Redux store
+        dispatch(setVendor(data));
+        
+        
+    // console.log("vendorId",useSelector((state) => state.vendor._id))
+        // Generate a JWT token for the vendor
+        navigate('/vendor/edit');
+        
+       
+      } else {
+        navigate('/');
+      }
+      
     } catch (err) {
       setLoading(false);
       setError(err.message);

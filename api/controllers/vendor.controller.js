@@ -93,26 +93,57 @@ export const getVendorProfile = async (req, res, next) => {
 };
 
 
-// Update vendor profile
+// Update vendor profileimport bcryptjs from 'bcryptjs'; // for password hashing
+
+
 export const updateVendorProfile = async (req, res, next) => {
-  const { shopName, shopDescription, avatar, mobileNumber } = req.body;
+  const {  email, password } = req.body;
+
+  // Ensure that the vendor is updating their own profile
+  if (req.user.id !== req.params.id) {
+    return next(errorHandler(401, 'You can only update your own account!'));
+  }
+
+  
+
+  // Check if the email already exists (excluding the current user)
+  const existingEmail = await Vendor.findOne({ email });
+  if (existingEmail && existingEmail._id.toString() !== req.params.id) {
+    return next(errorHandler(409, 'Email already exists!'));
+  }
 
   try {
-    const vendor = await Vendor.findById(req.user.id);
-    if (!vendor) return next(errorHandler(404, 'Vendor not found.'));
+    // If a new password is provided, hash it
+    if (password) {
+      req.body.password = bcryptjs.hashSync(password, 10);
+    }
 
-    vendor.shopName = shopName || vendor.shopName;
-    vendor.shopDescription = shopDescription || vendor.shopDescription;
-    vendor.avatar = avatar || vendor.avatar;
-    vendor.mobileNumber = mobileNumber || vendor.mobileNumber;
+    // Update the vendor profile
+    const updatedVendor = await Vendor.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          
+          email: req.body.email,
+          password: req.body.password,
+          mobileNumber: req.body.mobileNumber,
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          avatar: req.body.avatar || null, // Optional avatar update
+        },
+      },
+      { new: true } // Return the updated document
+    );
 
-    await vendor.save();
-
-    res.status(200).json({ message: 'Vendor profile updated successfully.' });
+    // Remove password from the response for security reasons
+    const { password: removedPassword, ...rest } = updatedVendor._doc;
+    res.status(200).json(rest); // Send back the updated vendor profile (without password)
+    
   } catch (error) {
-    next(error);
+    return next(errorHandler(500, 'Something went wrong!'));
   }
 };
+
 
 // Delete vendor profile
 export const deleteVendorProfile = async (req, res, next) => {

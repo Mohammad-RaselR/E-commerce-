@@ -1,5 +1,6 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import userReducer from './user/userSlice';
+import vendorReducer from './vendor/vendorSlice';  
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -13,6 +14,7 @@ const persistConfig = {
 // Combine all reducers
 const rootReducer = combineReducers({
   user: userReducer,
+  vendor: vendorReducer,
   // Add other reducers here as your app grows
 });
 

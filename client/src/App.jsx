@@ -13,6 +13,8 @@ import CreateListing from "./pages/CreateListing"
 // import UpdateListing from "./pages/UpdateListing"
 import Listing from "./pages/Listing"
 import EditAccountPage from "./pages/EditAccountPage";
+import AccountHeroSectionV from "./components/AccountHeroSectionV";
+import ProductHero from "./components/ProductHero";
 
 
 
@@ -21,7 +23,9 @@ export default function App(){
 
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/Vendor" element={<EditAccountPage />} />
+      <Route path="/Vendor/edit" element={<EditAccountPage />} />
+      <Route path="/vendor/Store" element={<AccountHeroSectionV/>} />
+      <Route path="/dashboard/products" element={<ProductHero/>} />
       <Route path="/account" element={<Account />} />
       <Route path="/about" element={<About />} />
       <Route path="/sign-in" element={<Signin />} />

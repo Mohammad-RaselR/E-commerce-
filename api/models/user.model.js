@@ -5,7 +5,8 @@ const user = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true
+    trim: true,
+    // match: /^\d{4}$/
   },
   email: {
     type: String,
@@ -24,6 +25,7 @@ const user = new mongoose.Schema({
       message:
         'Password must contain uppercase, lowercase, number and special character'
     }
+    
   },
   mobileNumber: {
     type: String,

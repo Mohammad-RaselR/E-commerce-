@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import '../Components/AuthForm.css';
-import { GoogleAuthProvider } from 'firebase/auth/web-extension';
-import { getAuth, signInWithPopup, sendPasswordResetEmail, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { GoogleAuthProvider, getAuth, signInWithPopup, sendPasswordResetEmail, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { app } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 import OAuth from '../components/OAuth';
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState('customer');
+  const [userType, setUserType] = useState('customer');
   const [shopName, setShopName] = useState('');
   const [shopDescription, setShopDescription] = useState('');
   const [email, setEmail] = useState('');
@@ -21,11 +20,10 @@ export default function SignUp() {
   
   const navigate = useNavigate(); 
 
-  const handleRoleChange = (e) => {
-    setRole(e.target.value);
+  const handleUserTypeChange = (e) => {
+    setUserType(e.target.value);
   };
 
-  // Password Validation Function
   const validatePassword = (password) => {
     const minLength = password.length >= 8;
     const hasUpperCase = /[A-Z]/.test(password);
@@ -33,20 +31,12 @@ export default function SignUp() {
     const hasNumber = /[0-9]/.test(password);
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
-    if (!minLength) {
-      return "Password must be at least 8 characters.";
-    }
-    if (!hasUpperCase || !hasLowerCase) {
-      return "Password must contain both uppercase and lowercase letters.";
-    }
-    if (!hasNumber) {
-      return "Password must contain at least one number.";
-    }
-    if (!hasSpecialChar) {
-      return "Password must contain at least one special character.";
-    }
+    if (!minLength) return "Password must be at least 8 characters.";
+    if (!hasUpperCase || !hasLowerCase) return "Password must contain both uppercase and lowercase letters.";
+    if (!hasNumber) return "Password must contain at least one number.";
+    if (!hasSpecialChar) return "Password must contain at least one special character.";
 
-    return ""; // No errors
+    return "";
   };
 
   const handleSubmit = async (e) => {
@@ -60,19 +50,50 @@ export default function SignUp() {
 
     try {
       const auth = getAuth(app);
-      // Create a new user with email and password
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Send email verification
       await sendEmailVerification(user);
+
+      const userData = {
+        email,
+        username,
+        mobileNumber,
+        password,
+      };
+
+      if (userType === 'vendor') {
+
+        userData.email  = email;
+        userData.password = password;
+        userData.username = username;
+        userData.mobileNumber = mobileNumber;
+        userData.shopName = shopName;
+        userData.shopDescription = shopDescription;
+      }
+
+      // Send user data to the server
+      console.log(userData)
+      const apiUrl = userType === 'vendor' ? '/api/vendor/register' : '/api/user/signup';
+      console.log(userType)
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || 'Registration failed.');
+        return;
+      }
 
       setSuccessMessage('Registration successful! Please check your email to verify your account.');
 
-      // After registration and sending the verification email, you can redirect or wait for the user to verify
       setTimeout(() => {
-        navigate('/sign-in'); // Redirect to sign-in page after success
-      }, 3000); // Wait for 3 seconds before redirecting
+        navigate('/sign-in');
+      }, 3000);
 
     } catch (error) {
       setError(error.message);
@@ -83,14 +104,11 @@ export default function SignUp() {
     try {
       const provider = new GoogleAuthProvider();
       const auth = getAuth(app);
-
       const result = await signInWithPopup(auth, provider);
 
       const res = await fetch('/api/auth/google', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: result.user.email,
           name: result.user.displayName,
@@ -99,19 +117,13 @@ export default function SignUp() {
       });
 
       const data = await res.json();
-      console.log('Google sign-in response:', data);
-
-      if (res.ok) {
-        // Handle success (e.g., store JWT token, redirect)
-      } else {
+      if (!res.ok) {
         console.error('Google authentication failed:', data);
       }
     } catch (error) {
       console.error('Google sign-in error:', error);
     }
   };
-
-  
 
   return (
     <div className="auth-container">
@@ -180,26 +192,26 @@ export default function SignUp() {
           <label>
             <input
               type="radio"
-              name="role"
+              name="userType"
               value="customer"
-              checked={role === 'customer'}
-              onChange={handleRoleChange}
+              checked={userType === 'customer'}
+              onChange={handleUserTypeChange}
             />
             I am a customer
           </label>
           <label>
             <input
               type="radio"
-              name="role"
+              name="userType"
               value="vendor"
-              checked={role === 'vendor'}
-              onChange={handleRoleChange}
+              checked={userType === 'vendor'}
+              onChange={handleUserTypeChange}
             />
             I am a vendor
           </label>
         </div>
 
-        {role === 'vendor' && (
+        {userType === 'vendor' && (
           <div>
             <label>Shop Name</label>
             <input
@@ -227,8 +239,6 @@ export default function SignUp() {
       <p className="switch-link">
         <a href="/sign-in">Already a member? Sign in</a>
       </p>
-
-      
 
       {error && <p className="error-text">{error}</p>}
       {successMessage && <p className="success-text">{successMessage}</p>}
