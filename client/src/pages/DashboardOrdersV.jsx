@@ -1,8 +1,8 @@
 import React from 'react';
-import Header from '../Components/Header';
-import NavBar from '../Components/NavBar';
-import Footer from '../Components/Footer';
-import DashboardOrders from '../Components/DashboardOrders';
+import Header from '../components/Header';
+import NavBar from '../components/NavBar';
+import Footer from '../components/Footer';
+import DashboardOrders from '../components/DashboardOrders';
 
 const DashboardOrdersV = () => {
     return (

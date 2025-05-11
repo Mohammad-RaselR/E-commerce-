@@ -2,7 +2,8 @@ import React from 'react';
 import Header from '../Components/Header';
 import NabBar from '../Components/NavBar';
 import Footer from '../Components/Footer';
-import Dashboard from '../Components/Dashboard';
+// import Dashboard from '../Components/Dashboard';
+import Dashboard from '../components/Dashboard';
 
 const DashboardV = () => {
     return (

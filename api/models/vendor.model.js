@@ -1,7 +1,16 @@
 import mongoose from 'mongoose';
 
 const vendorSchema = new mongoose.Schema({
-
+  firstName: {
+    type: String,
+    // required: true,
+    trim: true
+  },
+  lastName: {
+    type: String,
+    // required: true,
+    trim: true
+  },
   email: {
     type: String,
     required: true,
@@ -24,7 +33,8 @@ const vendorSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true
+    trim: true,
+    // match: /^\d{4}$/
   },
   
   
@@ -32,10 +42,10 @@ const vendorSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  shopurl: {
-    type: String,
-    required: true
-  },
+  // shopurl: {
+  //   type: String,
+  //   required: true
+  // },
   shopDescription: {
     type: String,
     required: true
