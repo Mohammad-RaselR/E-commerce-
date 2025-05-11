@@ -15,6 +15,7 @@ import Listing from "./pages/Listing"
 import EditAccountPage from "./pages/EditAccountPage";
 import AccountHeroSectionV from "./components/AccountHeroSectionV";
 import ProductHero from "./components/ProductHero";
+<<<<<<< HEAD
 import DashboardV from "./pages/DashboardV";
 // import DashboardOrderV from "./pages/DashboardOrdersV"
 import DashboardOrdersV from "./pages/DashboardOrdersV";
@@ -33,6 +34,8 @@ import OrderTrack from "./pages/OrderTrack"
 import HelpCenter from "./pages/HelpCenter"
 import ProductsDetails from "./pages/ProductsDetails";
 import Review from "./Components/Review";
+=======
+>>>>>>> ef858a76aba191f940ce8c5cc734b2341b060e56
 
 // import StoreDetailsV from "./pages/StoreDetailsV";
 // import StoreSetup from "./pages/StoreSetup";
@@ -175,7 +178,7 @@ export default function App(){
   
   </BrowserRouter>
   
-    
+    // This si pag
   
   
 }

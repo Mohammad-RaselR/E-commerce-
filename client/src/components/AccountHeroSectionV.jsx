@@ -12,7 +12,11 @@ const AccountHeroSectionV = () => {
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+<<<<<<< HEAD
   // const dispatch = useDispatch();
+=======
+  const dispatch = useDispatch();
+>>>>>>> ef858a76aba191f940ce8c5cc734b2341b060e56
   const vendor = useSelector((state) => state.vendor.currentVendor);
 
   const [details, setDetails] = useState({

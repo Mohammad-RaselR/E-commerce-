@@ -22,7 +22,10 @@ export default function ProductHero() {
       [e.target.name]: e.target.value,
     }));
   };
+<<<<<<< HEAD
   // console.log("form", form);
+=======
+>>>>>>> ef858a76aba191f940ce8c5cc734b2341b060e56
 
   const handleSubmit = async (e) => {
     e.preventDefault();
